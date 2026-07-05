@@ -5,14 +5,14 @@ export const USERS: Record<UserId, Omit<UserProfile, 'goals'>> = {
   stanne: {
     id: 'stanne',
     name: 'Stanne',
-    emoji: '🦁',
+    emoji: '🐺',
     color: '#34D399',
     photoUrl: null,
   },
   tissam: {
     id: 'tissam',
     name: 'Tissam',
-    emoji: '🐺',
+    emoji: '🐰',
     color: '#38BDF8',
     photoUrl: null,
   },

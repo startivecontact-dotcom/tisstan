@@ -25,7 +25,11 @@ export async function loadProfile(id: UserId): Promise<UserProfile> {
     return fresh;
   }
   const raw = await AsyncStorage.getItem(PROFILE_KEY(id));
-  return raw ? (JSON.parse(raw) as UserProfile) : defaultProfile(id);
+  if (!raw) return defaultProfile(id);
+  // L'emoji et la couleur d'identité viennent toujours de la config
+  // (non éditables dans l'app) — on ne garde du stockage que le reste.
+  const stored = JSON.parse(raw) as UserProfile;
+  return { ...stored, emoji: USERS[id].emoji, color: USERS[id].color };
 }
 
 export async function saveProfile(profile: UserProfile): Promise<void> {
