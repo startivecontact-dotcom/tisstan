@@ -1,0 +1,90 @@
+rules_version = '2';
+
+// Règles Firestore TisStan — application privée à deux utilisateurs.
+// Chaque utilisateur ne lit/écrit que ses documents, sauf ceux marqués
+// shared: true (mur de motivation, projets communs) qui sont lisibles
+// et "réagissables" par l'autre.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Le champ userId des documents vaut 'stanne' ou 'tissam'.
+    // On mappe l'email Firebase Auth vers cet identifiant via le doc users/{id}.
+    function myUserId() {
+      return get(/databases/$(database)/documents/emailMap/$(request.auth.token.email)).data.userId;
+    }
+
+    function isMine(data) {
+      return isSignedIn() && data.userId == myUserId();
+    }
+
+    // Profils : lisibles par les deux, modifiables par le propriétaire.
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && userId == myUserId();
+    }
+
+    // Table de correspondance email → userId (créée manuellement à l'init).
+    match /emailMap/{email} {
+      allow read: if isSignedIn() && request.auth.token.email == email;
+      allow write: if false;
+    }
+
+    // Collections personnelles.
+    match /weight/{doc} {
+      allow read, delete: if isMine(resource.data);
+      allow create, update: if isMine(request.resource.data);
+    }
+    match /meals/{doc} {
+      allow read, delete: if isMine(resource.data);
+      allow create, update: if isMine(request.resource.data);
+    }
+    match /sleep/{doc} {
+      allow read, delete: if isMine(resource.data);
+      allow create, update: if isMine(request.resource.data);
+    }
+    match /hydration/{doc} {
+      allow read, delete: if isMine(resource.data);
+      allow create, update: if isMine(request.resource.data);
+    }
+    match /workouts/{doc} {
+      allow read, delete: if isMine(resource.data);
+      allow create, update: if isMine(request.resource.data);
+    }
+    match /habits/{doc} {
+      allow read, delete: if isMine(resource.data);
+      allow create, update: if isMine(request.resource.data);
+    }
+    match /photos/{doc} {
+      allow read: if isMine(resource.data) || (isSignedIn() && resource.data.shared == true);
+      allow delete: if isMine(resource.data);
+      allow create, update: if isMine(request.resource.data);
+    }
+    match /aiHistory/{doc} {
+      allow read, delete: if isMine(resource.data);
+      allow create, update: if isMine(request.resource.data);
+    }
+
+    // Collections partagées : lisibles par les deux ; l'autre utilisateur
+    // peut mettre à jour (réactions, commentaires, kanban) mais pas supprimer.
+    match /posts/{doc} {
+      allow read: if isSignedIn();
+      allow create: if isMine(request.resource.data);
+      allow update: if isSignedIn();
+      allow delete: if isMine(resource.data);
+    }
+    match /projects/{doc} {
+      allow read: if isSignedIn();
+      allow create: if isMine(request.resource.data);
+      allow update: if isSignedIn();
+      allow delete: if isMine(resource.data);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,41 @@
+rules_version = '2';
+
+// Règles Storage TisStan.
+// Chemins : meals/{userId}/..., motivation/{userId}/..., avatars/{userId}/...,
+//           photos/{kind}/{userId}/...
+// Lecture : tout utilisateur connecté (app privée à deux).
+// Écriture : uniquement dans son propre dossier, images < 10 Mo.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*')
+        && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    match /avatars/{userId}/{file} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isImage();
+    }
+    match /meals/{userId}/{file} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isImage();
+    }
+    match /motivation/{userId}/{file} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isImage();
+    }
+    match /photos/{kind}/{userId}/{file} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isImage();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

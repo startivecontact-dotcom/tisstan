@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "TisStan",
+    "slug": "tisstan",
+    "version": "1.0.0",
+    "scheme": "tisstan",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0A0F0D",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#0A0F0D",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tisstan.app"
+    },
+    "android": {
+      "package": "com.tisstan.app",
+      "softwareKeyboardLayoutMode": "pan"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-notifications",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "TisStan utilise vos photos pour les repas, la motivation et les photos avant/après."
+        }
+      ]
+    ]
+  }
+}
