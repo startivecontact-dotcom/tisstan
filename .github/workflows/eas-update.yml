@@ -1,20 +1,13 @@
 # Publie l'app sur EAS Update (Expo Go) depuis GitHub Actions.
-# Déclenchement manuel : le token Expo est passé en input, masqué dans les
-# logs, utilisé une seule fois et jamais stocké.
+# Se déclenche à chaque push sur la branche `eas-publish` (ou manuellement).
+# Le token Expo est lu depuis le secret de dépôt EXPO_TOKEN :
+# GitHub → Settings → Secrets and variables → Actions → EXPO_TOKEN.
 name: EAS Update
 
 on:
+  push:
+    branches: [eas-publish]
   workflow_dispatch:
-    inputs:
-      expo_token:
-        description: 'Token Expo (expo.dev/settings/access-tokens)'
-        required: true
-        type: string
-      message:
-        description: 'Message de publication'
-        required: false
-        default: 'Publication TisStan'
-        type: string
 
 permissions:
   contents: write
@@ -23,9 +16,6 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - name: Masquer le token dans les logs
-        run: echo "::add-mask::${{ github.event.inputs.expo_token }}"
-
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
@@ -37,20 +27,10 @@ jobs:
 
       - name: Lier le projet EAS
         env:
-          EXPO_TOKEN: ${{ github.event.inputs.expo_token }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: npx eas-cli@latest init --non-interactive --force
 
       - name: Publier la mise à jour
         env:
-          EXPO_TOKEN: ${{ github.event.inputs.expo_token }}
-        run: npx eas-cli@latest update --branch main --message "${{ github.event.inputs.message }}" --non-interactive
-
-      - name: Committer le projectId EAS si modifié
-        run: |
-          if ! git diff --quiet app.json; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add app.json
-            git commit -m "chore: link EAS project id"
-            git push
-          fi
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: npx eas-cli@latest update --branch main --message "Publication TisStan 🐺🐰" --non-interactive
