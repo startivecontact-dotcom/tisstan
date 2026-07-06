@@ -127,6 +127,28 @@ src/
 firebase/               # firestore.rules · storage.rules · indexes
 ```
 
+## 📲 Publier sur Expo Go (EAS Update)
+
+Le projet est lié à `stanne93s-organization/tissstan` sur expo.dev.
+Depuis une machine (ou une session Claude Code) avec accès réseau ouvert :
+
+```bash
+export EXPO_TOKEN=<token créé sur expo.dev/settings/access-tokens>
+npx eas-cli@latest update:configure                 # renseigne updates.url / projectId
+npx eas-cli@latest update --branch main --message "Publication TisStan"
+```
+
+L'app apparaît alors dans Expo Go (compte connecté) → projet **tissstan** →
+branche `main`. Chaque nouvel `eas update` est récupéré automatiquement.
+
+> Expo Go n'exécute que la version de SDK qu'il supporte. Si Expo Go refuse
+> le projet, mettez à niveau : `npx expo install expo@latest && npx expo install --fix`,
+> vérifiez `npm run typecheck && npm test`, puis republiez.
+
+Pour un APK Android installable sans Play Store :
+`npx eas-cli@latest build -p android --profile preview` (lien de
+téléchargement direct à la fin du build).
+
 ## ✅ Tests & qualité
 
 ```bash

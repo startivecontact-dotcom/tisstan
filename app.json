@@ -1,7 +1,11 @@
 {
   "expo": {
     "name": "TisStan",
-    "slug": "tisstan",
+    "slug": "tissstan",
+    "owner": "stanne93s-organization",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
     "version": "1.0.0",
     "scheme": "tisstan",
     "orientation": "portrait",
