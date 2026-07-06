@@ -85,6 +85,37 @@ export function idealWeight(heightCm: number, sex: 'male' | 'female'): number {
   return Math.round((heightCm - 100 - (heightCm - 150) / divisor) * 10) / 10;
 }
 
+export interface GoalSuggestion {
+  calories: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+}
+
+/**
+ * Objectifs nutritionnels suggérés :
+ * BMR (Mifflin-St Jeor) × 1,5 d'activité, ajusté selon l'objectif de poids
+ * (déficit -300 kcal / surplus +250 kcal), protéines 1,8 g/kg,
+ * lipides 30 % des calories, le reste en glucides.
+ */
+export function suggestGoals(
+  weightKg: number,
+  heightCm: number,
+  age: number,
+  sex: 'male' | 'female',
+  goalWeightKg: number,
+): GoalSuggestion {
+  const bmr = 10 * weightKg + 6.25 * heightCm - 5 * age + (sex === 'male' ? 5 : -161);
+  let cal = bmr * 1.5;
+  if (goalWeightKg < weightKg - 1) cal -= 300;
+  else if (goalWeightKg > weightKg + 1) cal += 250;
+  const calories = Math.max(1200, Math.round(cal / 10) * 10);
+  const proteinG = Math.round(1.8 * weightKg);
+  const fatG = Math.round((calories * 0.3) / 9);
+  const carbsG = Math.max(0, Math.round((calories - proteinG * 4 - fatG * 9) / 4));
+  return { calories, proteinG, carbsG, fatG };
+}
+
 export const MEAL_LABELS: Record<Meal['type'], { label: string; emoji: string }> = {
   breakfast: { label: 'Petit déjeuner', emoji: '🍳' },
   lunch: { label: 'Déjeuner', emoji: '🥗' },

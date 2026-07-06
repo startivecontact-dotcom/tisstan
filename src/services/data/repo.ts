@@ -99,6 +99,23 @@ export async function upsertDoc<T extends BaseDoc>(col: CollectionName, docData:
   return docData;
 }
 
+/** Supprime toutes les données d'un utilisateur (reset onboarding / démo). */
+export async function clearUserData(userId: UserId): Promise<void> {
+  const cols: CollectionName[] = [
+    'weight', 'meals', 'sleep', 'hydration', 'workouts',
+    'habits', 'projects', 'posts', 'photos', 'aiHistory',
+  ];
+  for (const col of cols) {
+    if (isFirebaseEnabled) {
+      const snap = await getDocs(query(collection(requireDb(), col), where('userId', '==', userId)));
+      await Promise.all(snap.docs.map((d) => deleteDoc(d.ref)));
+    } else {
+      const docs = await localRead(col);
+      await localWrite(col, docs.filter((d) => d.userId !== userId));
+    }
+  }
+}
+
 export async function removeDoc(col: CollectionName, id: string): Promise<void> {
   if (isFirebaseEnabled) {
     await deleteDoc(doc(requireDb(), col, id));

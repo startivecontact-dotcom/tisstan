@@ -1,5 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { isFirebaseEnabled } from '@/services/firebase';
 import { upsertDoc } from '@/services/data/repo';
 import { lastNDays, sleepDuration } from '@/utils/date';
 import { uid } from '@/utils/id';
@@ -14,8 +12,6 @@ import type {
   WeightEntry,
   Workout,
 } from '@/types/models';
-
-const SEED_FLAG = 'tisstan:seeded:v1';
 
 /** Générateur pseudo-aléatoire déterministe pour des données de démo stables. */
 function rng(seed: number) {
@@ -114,21 +110,18 @@ function makeWorkoutTemplates(userId: UserId, createdAt: number): Workout[] {
 }
 
 /**
- * Crée 3 semaines de données réalistes pour chaque utilisateur au premier
- * lancement en mode démo. Ne fait rien si Firebase est configuré (les vraies
- * données vivent alors dans Firestore) ou si le seed a déjà été appliqué.
+ * Crée 3 semaines de données réalistes pour un utilisateur.
+ * Appelé depuis l'onboarding si « données de démonstration » est activé.
  */
-export async function seedDemoDataIfNeeded(): Promise<void> {
-  if (isFirebaseEnabled) return;
-  if (await AsyncStorage.getItem(SEED_FLAG)) return;
-
+export async function seedDemoUser(userId: UserId, startWeightKg?: number): Promise<void> {
   const days = lastNDays(21);
-  const users: { id: UserId; startWeight: number; seed: number }[] = [
-    { id: 'stanne', startWeight: 82.4, seed: 7 },
-    { id: 'tissam', startWeight: 77.8, seed: 13 },
-  ];
+  const u = {
+    id: userId,
+    startWeight: startWeightKg ?? (userId === 'stanne' ? 82.4 : 77.8),
+    seed: userId === 'stanne' ? 7 : 13,
+  };
 
-  for (const u of users) {
+  {
     const rand = rng(u.seed);
     const templates = makeWorkoutTemplates(u.id, Date.now() - days.length * 86400000);
     for (const t of templates) await upsertDoc('workouts', t);
@@ -230,21 +223,18 @@ export async function seedDemoDataIfNeeded(): Promise<void> {
     await upsertDoc('projects', project);
   }
 
-  // Mur de motivation partagé.
-  const posts: Array<Pick<Post, 'userId' | 'text'>> = [
-    { userId: 'stanne', text: 'Semaine 3 validée 🔥 On ne lâche rien !' },
-    { userId: 'tissam', text: 'Nouveau record au squat aujourd’hui 💪 100 kg !' },
-    { userId: 'stanne', text: '« La constance bat le talent. » — on continue ensemble.' },
+  // Mur de motivation : deux posts de démo signés par cet utilisateur.
+  const posts: string[] = [
+    'Semaine 3 validée 🔥 On ne lâche rien !',
+    '« La constance bat le talent. » — on continue ensemble.',
   ];
   for (let i = 0; i < posts.length; i++) {
     await upsertDoc<Post>('posts', {
-      id: uid(), userId: posts[i].userId, text: posts[i].text,
+      id: uid(), userId, text: posts[i],
       createdAt: Date.now() - (posts.length - i) * 3600_000,
       shared: true,
-      reactions: { '🔥': [posts[i].userId === 'stanne' ? 'tissam' : 'stanne'] },
+      reactions: {},
       comments: [],
     });
   }
-
-  await AsyncStorage.setItem(SEED_FLAG, '1');
 }

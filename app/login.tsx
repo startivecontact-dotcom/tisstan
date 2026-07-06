@@ -30,7 +30,8 @@ export default function LoginScreen() {
     setError(null);
     try {
       await login(selected, password);
-      router.replace('/(tabs)');
+      const profile = useAuth.getState().profile;
+      router.replace(profile?.onboarded ? '/(tabs)' : '/onboarding');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Connexion impossible');
     } finally {

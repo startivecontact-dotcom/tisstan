@@ -5,7 +5,7 @@ import { useAuth } from '@/stores/auth';
 import { colors } from '@/constants/theme';
 
 export default function Index() {
-  const { userId, hydrated } = useAuth();
+  const { userId, profile, hydrated } = useAuth();
   if (!hydrated) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}>
@@ -13,5 +13,6 @@ export default function Index() {
       </View>
     );
   }
-  return <Redirect href={userId ? '/(tabs)' : '/login'} />;
+  if (!userId) return <Redirect href="/login" />;
+  return <Redirect href={profile?.onboarded ? '/(tabs)' : '/onboarding'} />;
 }

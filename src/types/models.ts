@@ -26,6 +26,8 @@ export interface UserProfile {
   heightCm?: number;
   sex?: 'male' | 'female';
   birthYear?: number;
+  /** L'onboarding de première utilisation a été complété. */
+  onboarded?: boolean;
 }
 
 /** Document de base : toutes les entités stockées héritent de ces champs. */
