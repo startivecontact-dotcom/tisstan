@@ -13,7 +13,7 @@ export const USERS: Record<UserId, Omit<UserProfile, 'goals'>> = {
     id: 'tissam',
     name: 'Tissam',
     emoji: '🐰',
-    color: '#38BDF8',
+    color: '#E0699F',
     photoUrl: null,
   },
 };

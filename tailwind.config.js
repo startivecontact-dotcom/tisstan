@@ -1,22 +1,27 @@
 /** @type {import('tailwindcss').Config} */
+// Les couleurs pointent vers des variables CSS injectées par le thème actif
+// (src/constants/theme.ts) — voir le wrapper dans app/_layout.tsx.
+const v = (name) => `rgb(var(${name}) / <alpha-value>)`;
+
 module.exports = {
   content: ['./app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
       colors: {
-        bg: '#0A0F0D',
-        surface: '#101714',
-        card: '#151E1A',
-        line: '#233029',
-        ink: '#F4F7F5',
-        mute: '#8CA096',
-        brand: '#34D399',
-        brandDim: '#10B981',
-        sky: '#38BDF8',
-        skyDim: '#0EA5E9',
-        warn: '#FBBF24',
-        danger: '#F87171',
+        bg: v('--c-bg'),
+        surface: v('--c-surface'),
+        card: v('--c-card'),
+        cardAlt: v('--c-cardAlt'),
+        line: v('--c-line'),
+        ink: v('--c-ink'),
+        mute: v('--c-mute'),
+        brand: v('--c-brand'),
+        brandDim: v('--c-brandDim'),
+        sky: v('--c-sky'),
+        skyDim: v('--c-skyDim'),
+        warn: v('--c-warn'),
+        danger: v('--c-danger'),
       },
       borderRadius: {
         '3xl': 28,

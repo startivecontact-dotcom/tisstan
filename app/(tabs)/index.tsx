@@ -32,7 +32,9 @@ export default function DashboardScreen() {
       <Animated.View entering={FadeInDown.duration(500)} className="mt-2 flex-row items-center justify-between">
         <View>
           <Text className="text-sm capitalize text-mute">{formatLong(today)}</Text>
-          <Text className="text-3xl font-bold tracking-tight text-ink">Salut {s.profile.name} 👋</Text>
+          <Text className="text-3xl font-bold tracking-tight text-ink">
+            Salut {s.profile.name} {userId === 'tissam' ? '🐰' : '👋'}
+          </Text>
         </View>
         <Pressable onPress={() => router.push('/profile')}>
           <Avatar profile={s.profile} size={48} />
