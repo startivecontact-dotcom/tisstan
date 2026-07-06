@@ -25,12 +25,22 @@ jobs:
 
       - run: npm ci
 
+      - name: Vérifier le token
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN || vars.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::EXPO_TOKEN introuvable. Ajoutez-le dans Settings → Secrets and variables → Actions → onglet Secrets (pas Variables) → New repository secret."
+            exit 1
+          fi
+          echo "Token présent ✓"
+
       - name: Lier le projet EAS
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN || vars.EXPO_TOKEN }}
         run: npx eas-cli@latest init --non-interactive --force
 
       - name: Publier la mise à jour
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN || vars.EXPO_TOKEN }}
         run: npx eas-cli@latest update --branch main --message "Publication TisStan 🐺🐰" --non-interactive
