@@ -49,6 +49,8 @@ jobs:
           fi
           echo "Clé Gemini VALIDE ✓"
           echo "EXPO_PUBLIC_GEMINI_API_KEY=$KEY" >> "$GITHUB_ENV"
+          # Méthode fiable : Expo charge toujours les fichiers .env à l'export.
+          printf 'EXPO_PUBLIC_GEMINI_API_KEY=%s\n' "$KEY" > .env
 
       - name: Lier le projet EAS
         env:
@@ -58,4 +60,20 @@ jobs:
       - name: Publier la mise à jour
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN || vars.EXPO_TOKEN }}
-        run: npx eas-cli@latest update --branch main --message "Publication TisStan 🐺🐰" --non-interactive
+        run: |
+          echo "Clé dans l'environnement : ${EXPO_PUBLIC_GEMINI_API_KEY:+OUI}${EXPO_PUBLIC_GEMINI_API_KEY:-NON}"
+          npx eas-cli@latest update --branch main --message "Publication TisStan IA 🐺🐰" --non-interactive
+
+      - name: Vérifier que la clé est dans le bundle publié
+        run: |
+          COUNT=0
+          for f in dist/_expo/static/js/*/*.hbc; do
+            n=$(strings "$f" | grep -cF "$EXPO_PUBLIC_GEMINI_API_KEY" || true)
+            echo "$f -> $n occurrence(s)"
+            COUNT=$((COUNT + n))
+          done
+          if [ "$COUNT" = "0" ]; then
+            echo "::error::La clé n'a PAS été inlinée dans le bundle."
+            exit 1
+          fi
+          echo "Clé présente dans le bundle ✓"
