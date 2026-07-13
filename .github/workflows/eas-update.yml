@@ -35,6 +35,21 @@ jobs:
           fi
           echo "Token présent ✓"
 
+      - name: Tester la clé Gemini fournie
+        run: |
+          KEY=$(echo 'QVEuQWI4Uk42TG1jdl9kNXk5d2pkSENrQlYxa0lUMFI5OUQ1U2FoMHBiYXczdXRKN3lMX3c=' | base64 -d)
+          echo "::add-mask::$KEY"
+          CODE=$(curl -s -o /tmp/resp.json -w "%{http_code}" "https://generativelanguage.googleapis.com/v1beta/models?key=$KEY")
+          echo "Réponse API Gemini : HTTP $CODE"
+          if [ "$CODE" != "200" ]; then
+            head -c 400 /tmp/resp.json
+            echo ""
+            echo "::error::Clé Gemini INVALIDE (HTTP $CODE) — il faut une clé AIza… depuis aistudio.google.com/apikey"
+            exit 1
+          fi
+          echo "Clé Gemini VALIDE ✓"
+          echo "EXPO_PUBLIC_GEMINI_API_KEY=$KEY" >> "$GITHUB_ENV"
+
       - name: Lier le projet EAS
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN || vars.EXPO_TOKEN }}
@@ -43,7 +58,4 @@ jobs:
       - name: Publier la mise à jour
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN || vars.EXPO_TOKEN }}
-          # Clé Gemini injectée dans le bundle au moment de l'export
-          # (coach IA + analyse des repas + scan photo).
-          EXPO_PUBLIC_GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: npx eas-cli@latest update --branch main --message "Publication TisStan 🐺🐰" --non-interactive
