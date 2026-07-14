@@ -62,7 +62,7 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN || vars.EXPO_TOKEN }}
         run: |
           echo "Clé dans l'environnement : ${EXPO_PUBLIC_GEMINI_API_KEY:+OUI}${EXPO_PUBLIC_GEMINI_API_KEY:-NON}"
-          npx eas-cli@latest update --branch main --message "Publication TisStan IA 🐺🐰" --non-interactive
+          npx eas-cli@latest update --branch main --message "TisStan v${GITHUB_RUN_NUMBER} — IA activée 🐺🐰" --non-interactive
 
       - name: Vérifier que la clé est dans le bundle publié
         run: |
