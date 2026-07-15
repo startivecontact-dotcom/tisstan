@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { FormInput } from '@/components/ui/Input';
 import { USERS, USER_IDS } from '@/constants/config';
 import { colors } from '@/constants/theme';
+import { isAiEnabled } from '@/services/ai';
 import { isFirebaseEnabled } from '@/services/firebase';
 import { useAuth } from '@/stores/auth';
 import type { UserId } from '@/types/models';
@@ -94,6 +95,10 @@ export default function LoginScreen() {
 
         <Text className="mt-10 text-center text-xs text-mute">
           {isFirebaseEnabled ? 'Connecté à Firebase' : 'Mode démo — données locales, aucune configuration requise'}
+        </Text>
+        <Text className="mt-2 text-center text-xs font-bold text-brand">
+          {process.env.EXPO_PUBLIC_APP_VERSION ? `Version ${process.env.EXPO_PUBLIC_APP_VERSION} · ` : ''}
+          {isAiEnabled ? 'IA Gemini activée ✓' : 'IA hors-ligne ✗'}
         </Text>
       </KeyboardAvoidingView>
     </View>
